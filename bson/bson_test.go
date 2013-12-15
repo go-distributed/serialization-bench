@@ -15,17 +15,31 @@ type Data struct {
         A       []byte
 }
 
-func BenchmarkBson(b *testing.B) {
+func BenchmarkBsonMarshal(b *testing.B) {
         length := 100
         a := make([]byte, length, length)
 
         putData := &Data{A: a}
-        getData := &Data{}
+        putData.N = 1
+        putData.S = "abc"
 
         for i := 0; i < b.N; i++ {
-                putData.N = i
-                putData.S = string(i)
-                data, _ := bson.Marshal(putData)
+                bson.Marshal(putData)
+        }
+}
+
+func BenchmarkBsonUnmarshal(b *testing.B) {
+        length := 100
+        a := make([]byte, length, length)
+
+        putData := &Data{A: a}
+        putData.N = 1
+        putData.S = "abc"
+        getData := &Data{}
+
+        data, _ := bson.Marshal(putData)
+
+        for i := 0; i < b.N; i++ {
                 bson.Unmarshal(data, getData)
         }
 }
