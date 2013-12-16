@@ -30,7 +30,7 @@ func BenchmarkUnma(b *testing.B) {
 
 	q2 := &Quack{}
 
-	for i := 0; i < b.N; i++ {
-		q2.Marshal(buf)
-	}
+        for i := 0; i < b.N; i++ {
+                q2.Unmarshal(buf)
+        }
 }
