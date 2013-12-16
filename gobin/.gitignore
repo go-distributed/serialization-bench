@@ -1,5 +1,5 @@
 *
 !generated_code.go
-!duck.go
-!duck_test.go
+!gobin.go
+!gobin_test.go
 !.gitignore
