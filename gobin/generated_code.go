@@ -10,8 +10,8 @@ func (t *Quack) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type QuackCache struct {
-	mu	sync.Mutex
-	cache	[]*Quack
+	mu    sync.Mutex
+	cache []*Quack
 }
 
 func NewQuackCache() *QuackCache {
