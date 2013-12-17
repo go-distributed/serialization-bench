@@ -1,4 +1,4 @@
-package duck
+package gobin
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package duck
+package gobin
 
 type Quack struct {
 	X int
