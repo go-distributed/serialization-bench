@@ -67,7 +67,11 @@ func BenchmarkUnma(b *testing.B) {
 
 	m := new(bytes.Buffer)
 	enc := gob.NewEncoder(m)
-	enc.Encode(putData)
+	for i := 0; i < b.N; i++ {
+		enc.Encode(putData)
+	}
+
+	b.ResetTimer()
 
 	getData := &Data{}
 	dec := gob.NewDecoder(m)
