@@ -1,0 +1,52 @@
+package gogopb;
+
+// gogoproto official page:
+//   http://code.google.com/p/gogoprotobuf/
+// gogoproto setup is included in README:
+//   http://code.google.com/p/gogoprotobuf/source/browse/README
+// protobuf language guide:
+//   https://developers.google.com/protocol-buffers/docs/proto
+// gogoproto godoc:
+//   http://godoc.org/code.google.com/p/gogoprotobuf/gogoproto
+// plugin description:
+//   http://godoc.org/code.google.com/p/gogoprotobuf/plugin
+
+import "code.google.com/p/gogoprotobuf/gogoproto/gogo.proto";
+
+option (gogoproto.gostring_all) = true;
+option (gogoproto.equal_all) = true;
+option (gogoproto.verbose_equal_all) = true;
+option (gogoproto.goproto_stringer_all) = false;
+option (gogoproto.stringer_all) =  true;
+option (gogoproto.populate_all) = true;
+option (gogoproto.testgen_all) = true;
+option (gogoproto.benchgen_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+message PreAccept {
+        option (gogoproto.face) = true;
+        option (gogoproto.goproto_getters) = false;
+
+        /*
+        LeaderId int32
+        Replica  int32
+        Instance int32
+        Ballot   int32
+        Command  []byte
+        Seq      int32
+        Deps     [5]int32
+        */
+        required int32 LeaderId = 1 [(gogoproto.nullable) = false];
+        optional int32 Replica  = 2 [(gogoproto.nullable) = false];
+        optional int32 Instance = 3 [(gogoproto.nullable) = false];
+        optional int32 Ballot   = 4 [(gogoproto.nullable) = false];
+        optional bytes Command  = 5 [(gogoproto.nullable) = false];
+        optional int32 Seq      = 6 [(gogoproto.nullable) = false];
+
+        optional int64 Deps1    = 7 [(gogoproto.nullable) = false];
+        optional int64 Deps2    = 8 [(gogoproto.nullable) = false];
+        optional int32 Deps3    = 9 [(gogoproto.nullable) = false];
+}
+
