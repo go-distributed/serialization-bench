@@ -43,12 +43,13 @@ type PreAccept struct {
 	// Command  []byte
 	// Seq      int32
 	// Deps     [5]int32
-	LeaderId         int32  `protobuf:"varint,1,req" json:"LeaderId"`
-	Replica          int32  `protobuf:"varint,2,opt" json:"Replica"`
-	Instance         int32  `protobuf:"varint,3,opt" json:"Instance"`
-	Ballot           int32  `protobuf:"varint,4,opt" json:"Ballot"`
-	Command          []byte `protobuf:"bytes,5,opt" json:"Command"`
-	Seq              int32  `protobuf:"varint,6,opt" json:"Seq"`
+	LeaderId int32  `protobuf:"varint,1,req" json:"LeaderId"`
+	Replica  int32  `protobuf:"varint,2,opt" json:"Replica"`
+	Instance int32  `protobuf:"varint,3,opt" json:"Instance"`
+	Ballot   int32  `protobuf:"varint,4,opt" json:"Ballot"`
+	Command  []byte `protobuf:"bytes,5,opt" json:"Command"`
+	Seq      int32  `protobuf:"varint,6,opt" json:"Seq"`
+	// optional bytes Deps     = 7 [(gogoproto.customtype)="Uint128", (gogoproto.nullable) = false];
 	Deps1            int64  `protobuf:"varint,7,opt" json:"Deps1"`
 	Deps2            int64  `protobuf:"varint,8,opt" json:"Deps2"`
 	Deps3            int32  `protobuf:"varint,9,opt" json:"Deps3"`

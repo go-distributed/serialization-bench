@@ -45,6 +45,7 @@ message PreAccept {
         optional bytes Command  = 5 [(gogoproto.nullable) = false];
         optional int32 Seq      = 6 [(gogoproto.nullable) = false];
 
+        /*optional bytes Deps     = 7 [(gogoproto.customtype)="Uint128", (gogoproto.nullable) = false];*/
         optional int64 Deps1    = 7 [(gogoproto.nullable) = false];
         optional int64 Deps2    = 8 [(gogoproto.nullable) = false];
         optional int32 Deps3    = 9 [(gogoproto.nullable) = false];
