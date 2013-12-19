@@ -4,78 +4,165 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	math_rand "math/rand"
+	"runtime"
 	"testing"
+	"time"
 )
 
 var _ = fmt.Printf
+var _ = runtime.GC
 
-type Data struct {
-	N int
-	S []byte
-	A []byte
+type PreAccept struct {
+	LeaderId int32
+	Replica  int32
+	Instance int32
+	Ballot   int32
+	Command  []byte
+	Seq      int32
+	Deps     [5]int32
 }
 
-func TestGobEncoding(t *testing.T) {
-	length := 100
-	a := make([]byte, length, length)
-	for i := 0; i < length; i++ {
-		a[i] = byte(i)
+func NewPopulatedPreAccept(r *math_rand.Rand) *PreAccept {
+	this := &PreAccept{}
+	this.LeaderId = r.Int31()
+	this.Replica = r.Int31()
+	this.Instance = r.Int31()
+	this.Ballot = r.Int31()
+	v1 := r.Intn(100)
+	this.Command = make([]byte, v1)
+	for i := 0; i < v1; i++ {
+		this.Command[i] = byte(r.Intn(256))
 	}
+	this.Seq = r.Int31()
+	for i := 0; i < 5; i++ {
+		this.Deps[i] = r.Int31()
+	}
+	return this
+}
 
-	putData := &Data{N: 1, S: []byte{'a', 'b', 'c'}, A: a}
+func TestGob(t *testing.T) {
 
-	m := new(bytes.Buffer)
-	enc := gob.NewEncoder(m)
-	enc.Encode(putData)
+	p := &PreAccept{LeaderId: 1}
 
-	getData := &Data{}
-	dec := gob.NewDecoder(m)
-	dec.Decode(&getData)
+	data := new(bytes.Buffer)
+	enc := gob.NewEncoder(data)
+	dec := gob.NewDecoder(data)
 
-	if getData.N != putData.N ||
-		bytes.Compare(getData.S, putData.S) != 0 ||
-		bytes.Compare(getData.A, putData.A) != 0 {
-		t.Fatal("Gob encoding failed!")
+	msg := &PreAccept{}
+	msg2 := &PreAccept{}
+
+	enc.Encode(p)
+	dec.Decode(&msg)
+
+	enc.Encode(p)
+	dec.Decode(&msg2)
+
+	if msg.LeaderId != p.LeaderId || msg2.LeaderId != p.LeaderId {
+		t.Fatal("not equal")
 	}
 }
 
 func BenchmarkMars(b *testing.B) {
-	length := 100
-	a := make([]byte, length, length)
-	for i := 0; i < length; i++ {
-		a[i] = byte(i)
-	}
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	total := 0
 
-	putData := &Data{N: 1, S: []byte{'a', 'b', 'c'}, A: a}
-
-	m := new(bytes.Buffer)
-	enc := gob.NewEncoder(m)
+	b.ResetTimer()
+	b.StopTimer()
 	for i := 0; i < b.N; i++ {
-		enc.Encode(putData)
+		p := NewPopulatedPreAccept(popr)
+		data := new(bytes.Buffer)
+		enc := gob.NewEncoder(data)
+
+		b.StartTimer()
+		enc.Encode(p)
+		b.StopTimer()
+
+		total += len(data.Bytes())
+
 	}
+
+	b.SetBytes(int64(total / b.N))
 }
 
 func BenchmarkUnma(b *testing.B) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	total := 0
 
-	length := 100
-	a := make([]byte, length, length)
-	for i := 0; i < length; i++ {
-		a[i] = byte(i)
-	}
+	data := new(bytes.Buffer)
+	enc := gob.NewEncoder(data)
+	dec := gob.NewDecoder(data)
 
-	putData := &Data{N: 1, S: []byte{'a', 'b', 'c'}, A: a}
-
-	m := new(bytes.Buffer)
-	enc := gob.NewEncoder(m)
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		enc.Encode(putData)
+		b.StopTimer()
+
+		runtime.GC() // collect previous msg
+
+		p := NewPopulatedPreAccept(popr)
+
+		enc.Encode(p)
+
+		total += len(data.Bytes())
+
+		msg := &PreAccept{}
+
+		b.StartTimer()
+		dec.Decode(&msg)
+
 	}
+	b.SetBytes(int64(total / b.N))
+}
+
+func BenchmarkStreamMars(b *testing.B) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	total := 0
+
+	data := new(bytes.Buffer)
+	enc := gob.NewEncoder(data)
+
+	b.ResetTimer()
+	b.StopTimer()
+	for i := 0; i < b.N; i++ {
+		p := NewPopulatedPreAccept(popr)
+
+		b.StartTimer()
+		enc.Encode(p)
+		b.StopTimer()
+
+	}
+
+	total += len(data.Bytes())
+	b.SetBytes(int64(total / b.N))
+}
+
+func BenchmarkStreamUnma(b *testing.B) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	total := 0
+
+	data := new(bytes.Buffer)
+	enc := gob.NewEncoder(data)
+	dec := gob.NewDecoder(data)
+
+	for i := 0; i < b.N; i++ {
+		p := NewPopulatedPreAccept(popr)
+		enc.Encode(p)
+
+	}
+	total += len(data.Bytes())
 
 	b.ResetTimer()
 
-	getData := &Data{}
-	dec := gob.NewDecoder(m)
 	for i := 0; i < b.N; i++ {
-		dec.Decode(&getData)
+		b.StopTimer()
+
+		runtime.GC() // collect previous msg
+
+		msg := &PreAccept{}
+
+		b.StartTimer()
+		dec.Decode(&msg)
+
 	}
+	b.SetBytes(int64(total / b.N))
 }
