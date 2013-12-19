@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	math_rand "math/rand"
 	"runtime"
+	math_rand "math/rand"
 	"testing"
 	"time"
 )
 
 var _ = fmt.Printf
-var _ = runtime.GC
 
 type PreAccept struct {
 	LeaderId int32
@@ -97,8 +96,6 @@ func BenchmarkUnma(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 
-		runtime.GC() // collect previous msg
-
 		p := NewPopulatedPreAccept(popr)
 
 		enc.Encode(p)
@@ -156,8 +153,7 @@ func BenchmarkStreamUnma(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 
-		runtime.GC() // collect previous msg
-
+                runtime.GC() // it speeds up by 3000 ns/op.
 		msg := &PreAccept{}
 
 		b.StartTimer()
